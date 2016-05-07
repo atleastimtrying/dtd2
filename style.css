@@ -18,9 +18,11 @@
   width: 100%;
   z-index: 5;
 }
+
 .input{
   z-index: 10;
 }
+
 .display{
   z-index: 0;
   background: hsl(200, 60%, 50%);
@@ -31,8 +33,17 @@
   height: 50px;
   border-radius: 25px;
   position:absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   margin: -25px;
   background: hsl(250, 60%, 50%);
+}
+
+.dot.touch{
+  background: transparent;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+}
+
+.dot.selected{
+  background: hsl(60, 60%, 50%);
 }

@@ -58,19 +58,23 @@
 
 	var _dot_touching2 = _interopRequireDefault(_dot_touching);
 
-	var _dot_collision = __webpack_require__(5);
+	var _dot_collision = __webpack_require__(6);
 
 	var _dot_collision2 = _interopRequireDefault(_dot_collision);
 
-	var _game_completion = __webpack_require__(6);
+	var _dot_move_selected = __webpack_require__(7);
+
+	var _dot_move_selected2 = _interopRequireDefault(_dot_move_selected);
+
+	var _game_completion = __webpack_require__(8);
 
 	var _game_completion2 = _interopRequireDefault(_game_completion);
 
-	var _time = __webpack_require__(7);
+	var _time = __webpack_require__(9);
 
 	var _time2 = _interopRequireDefault(_time);
 
-	var _renderer = __webpack_require__(8);
+	var _renderer = __webpack_require__(10);
 
 	var _renderer2 = _interopRequireDefault(_renderer);
 
@@ -88,6 +92,7 @@
 	  state = (0, _time2.default)(state);
 	  state = _input2.default.read(state);
 	  state = (0, _dot_touching2.default)(state);
+	  state = (0, _dot_move_selected2.default)(state);
 	  state = (0, _dot_collision2.default)(state);
 	  state = (0, _game_completion2.default)(state);
 	  _renderer2.default.render(state);
@@ -5210,27 +5215,67 @@
 
 /***/ },
 /* 4 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
 	exports.default = function (state) {
-	  // if ! state.touching
-	  //   deselect all dots
-	  // if state.touching
-	  //   check all dots x, y vs touch x, y factor in radius
-	  //     select topmost dot accordingly
+	  debugger;
+	  if (state.get('touching') && !state.get('selected')) {
+	    (function () {
+	      var touch_location = state.get('touch_location');
+	      state.set('dots', state.get('dots').map(function (dot) {
+	        dot.selected = dot_is_touched(dot, touch_location);
+	        return dot;
+	      }));
+	    })();
+	  } else {
+	    state.set('dots', state.get('dots').map(function (dot) {
+	      dot.selected = false;
+	      return dot;
+	    }));
+	  }
 	  return state;
+	};
+
+	var collision = __webpack_require__(5);
+
+	var dot_is_touched = function dot_is_touched(dot, finger) {
+	  return collision({
+	    x: dot.x,
+	    y: dot.y,
+	    r: 25
+	  }, {
+	    x: finger.get('x'),
+	    y: finger.get('y'),
+	    r: 25
+	  });
 	};
 
 	;
 
 /***/ },
 /* 5 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	module.exports = function (item1, item2) {
+	  var xs = item1.x - item2.x;
+	  xs = xs * xs;
+	  var ys = item1.y - item2.y;
+	  ys = ys * ys;
+	  var range = item1.r + item2.r;
+	  var dist = Math.sqrt(xs + ys);
+	  return dist < range;
+	};
+
+/***/ },
+/* 6 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5250,7 +5295,39 @@
 	;
 
 /***/ },
-/* 6 */
+/* 7 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	exports.default = function (state) {
+	  if (state.get("touching")) {
+	    (function () {
+	      var x = state.get("touch_location").get("x");
+	      var y = state.get("touch_location").get("y");
+	      var dots = state.get("dots").map(function (dot) {
+	        if (dot.selected) {
+	          dot.x = x;
+	          dot.y = y;
+	          return dot;
+	        } else {
+	          return dot;
+	        }
+	      });
+	      state.set("dots", dots);
+	    })();
+	  }
+	  return state;
+	};
+
+	;
+
+/***/ },
+/* 8 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5266,7 +5343,7 @@
 	;
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -5285,7 +5362,7 @@
 	;
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5306,7 +5383,16 @@
 	};
 
 	var dot_to_html = function dot_to_html(dot) {
-	  return '<div class="dot" style="transform:translate3d(' + dot.get('x') + 'px, ' + dot.get('y') + 'px, ' + (dot.get('z') || 0) + 'px);">' + (dot.get('id') || "") + '</div>';
+	  var className = arguments.length <= 1 || arguments[1] === undefined ? "" : arguments[1];
+
+	  if (dot.get) {
+	    return '<div class="dot ' + className + '" style="transform:translate3d(' + dot.get('x') + 'px, ' + dot.get('y') + 'px, ' + (dot.get('z') || 0) + 'px);">' + (dot.get('id') || "") + '</div>';
+	  } else {
+	    if (dot.selected) {
+	      className = "selected";
+	    }
+	    return '<div class="dot ' + className + '" style="transform:translate3d(' + dot.x + 'px, ' + dot.y + 'px, ' + (dot.z || 0) + 'px);">' + (dot.id || "") + '</div>';
+	  }
 	};
 
 	var have_dots_changed = function have_dots_changed(dots) {
@@ -5323,14 +5409,19 @@
 	};
 
 	var render_touch_dot = function render_touch_dot(touch_location) {
-	  document.querySelector('.display').innerHTML += dot_to_html(touch_location);
+	  document.querySelector('.display').innerHTML += dot_to_html(touch_location, 'touch');
+	};
+
+	var clear_touch_dot = function clear_touch_dot() {
+	  var dot = document.querySelector('.display .dot.touch');
+	  if (dot) {
+	    dot.remove();
+	  }
 	};
 
 	var render_dots = function render_dots(dots, time) {
 	  document.querySelector('.time').innerHTML = 'Time: ' + format_time(time);
-	  if (have_dots_changed(dots)) {
-	    document.querySelector('.display').innerHTML = dots_to_html(dots);
-	  }
+	  document.querySelector('.display').innerHTML = dots_to_html(dots);
 	};
 
 	exports.default = {
@@ -5343,6 +5434,7 @@
 	      render_gameover(state.get('time'));
 	    } else {
 	      render_dots(state.get('dots'), state.get('time'));
+	      clear_touch_dot();
 	      if (state.get('touching')) {
 	        render_touch_dot(state.get('touch_location'));
 	      }

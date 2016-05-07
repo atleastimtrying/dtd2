@@ -2,6 +2,7 @@ import initial_state from './initial_state.js';
 import input from './input.js';
 import dot_touching from './dot_touching.js';
 import dot_collision from './dot_collision.js';
+import dot_move_selected from './dot_move_selected.js';
 import game_completion from './game_completion.js';
 import time from './time.js';
 import renderer from './renderer.js';
@@ -18,6 +19,7 @@ let loop = function(){
   state = time(state);
   state = input.read(state);
   state = dot_touching(state);
+  state = dot_move_selected(state);
   state = dot_collision(state);
   state = game_completion(state);
   renderer.render(state);
