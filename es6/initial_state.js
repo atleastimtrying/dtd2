@@ -10,7 +10,7 @@ let state = {
   },
   current_dot: 0,
   dots: [
-    {
+    Immutable.Map({
       selected: false,
       completed: false,
       id: 0,
@@ -18,8 +18,8 @@ let state = {
       x: 100,
       y: 100,
       z: 0
-    },
-    {
+    }),
+    Immutable.Map({
       selected: false,
       completed: false,
       id: 1,
@@ -27,7 +27,7 @@ let state = {
       x: 200,
       y: 100,
       z: 1
-    }
+    })
   ]
 };
 

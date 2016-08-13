@@ -3,8 +3,8 @@ var collision = require('./collision');
 var dot_is_touched = function(dot, finger){
   return collision(
     {
-      x: dot.x,
-      y: dot.y,
+      x: dot.get('x'),
+      y: dot.get('y'),
       r: 25
     },
     {

@@ -1,4 +1,7 @@
+import React from 'react';
 import Immutable from 'immutable';
+import expose_methods from '../expose_methods';
+
 let internal_state = {
   touching: false,
   touch_location: {
@@ -8,6 +11,7 @@ let internal_state = {
 };
 
 let start = function(event){
+  
   internal_state = {
     touching: true,
     touch_location: {
@@ -15,13 +19,14 @@ let start = function(event){
       y: event.clientY
     }
   };
-  document.querySelector('.input').addEventListener('mousemove', move);
-  document.querySelector('.input').addEventListener('mouseup', stop);  
 };
 
 let move = function(event){
+  if(internal_state.touching){
+    expose_methods.call('update');
+  }
   internal_state = {
-    touching: true,
+    touching: internal_state.touching,
     touch_location: {
       x: event.clientX,
       y: event.clientY
@@ -30,8 +35,6 @@ let move = function(event){
 };
 
 let stop = function(event){
-  document.querySelector('.input').removeEventListener('mousemove', move);
-  document.querySelector('.input').removeEventListener('mouseup', stop);  
   internal_state = {
     touching: false,
     touch_location: {
@@ -41,17 +44,9 @@ let stop = function(event){
   };
 };
 
-let bind = function(){
-  document.querySelector('.input').addEventListener('mousedown', start);
-};
-
 let read = function(external_state){
-  var state = external_state.merge(internal_state);
-  return state;
+  return external_state.merge(internal_state);
 };
 
-export default {
-  bind,
-  read
-};
-
+const Input = (props)=> <div className="input" onMouseDown={start} onMouseUp={stop} onMouseMove={move}></div>;
+module.exports = { Input, read };

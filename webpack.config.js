@@ -5,6 +5,9 @@ module.exports = {
     path: __dirname,
     filename: 'bundle.js'
   },
+  resolve:{
+    extensions: ['', '.js', '.jsx']
+  },
   module: {
     loaders: [
       { 
@@ -12,6 +15,14 @@ module.exports = {
         loader: 'babel-loader',
         query: {
           presets: ['es2015']
+        }
+      },
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        loader: "babel-loader",
+        query:{
+          presets: ['react']
         }
       }
     ]
