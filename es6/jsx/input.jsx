@@ -22,9 +22,6 @@ let start = function(event){
 };
 
 let move = function(event){
-  if(internal_state.touching){
-    expose_methods.call('update');
-  }
   internal_state = {
     touching: internal_state.touching,
     touch_location: {

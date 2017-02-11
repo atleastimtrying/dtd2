@@ -2,7 +2,7 @@ var path = require('path');
 module.exports = {
   entry: './es6/main.js',
   output: {
-    path: __dirname,
+    path: path.join(__dirname,'dist'),
     filename: 'bundle.js'
   },
   resolve:{

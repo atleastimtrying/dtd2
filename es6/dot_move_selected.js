@@ -11,8 +11,9 @@ export default function(state){
         return dot;
       }
     });
-    state.set("dots", dots);
+    state = state.set("dots", dots);
   }
+
   return state;
 };
 

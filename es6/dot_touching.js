@@ -16,18 +16,21 @@ var dot_is_touched = function(dot, finger){
 };
 
 export default function(state){
-  if(state.get('touching') && !state.get('selected')){
+  if(state.get('touching')){
     let touch_location = state.get('touch_location');
-    state.set('dots', state.get('dots').map(function(dot){
-      dot.selected = dot_is_touched(dot, touch_location);
-      return dot;
-    }));
+    if(!state.get('selected')){
+      state.set('dots', state.get('dots').map(function(dot){
+        dot.selected = dot_is_touched(dot, touch_location);
+        return dot;
+      }));
+    }
   }else{
     state.set('dots', state.get('dots').map(function(dot){
       dot.selected = false;
       return dot;
     }));
   }
+
   return state;
 };
 
